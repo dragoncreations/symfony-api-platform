@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
@@ -27,7 +28,11 @@ use function Symfony\Component\String\u;
     shortName: 'Treasure',
     description: 'A rare and valuable treasure.',
     operations: [
-        new Get(),
+        new Get(
+            normalizationContext: [
+                'groups' => ['treasure:read', 'treasure:item:get'],
+            ],
+        ),
         new GetCollection(),
         new Post(),
         new Put(),
@@ -47,7 +52,24 @@ use function Symfony\Component\String\u;
     ],
     paginationItemsPerPage: 10,
 )]
+#[ApiResource(
+    uriTemplate: '/users/{user_id}/treasures.{_format}',
+    shortName: 'Treasure',
+    operations: [new GetCollection()],
+    uriVariables: [
+        'user_id' => new Link(
+            fromProperty: 'dragonTreasures',
+            fromClass: User::class,
+        ),
+    ],
+    normalizationContext: [
+        'groups' => ['treasure:read'],
+    ],
+)]
 #[ApiFilter(PropertyFilter::class)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'owner.username' => 'partial',
+])]
 class DragonTreasure
 {
     #[ORM\Id]
@@ -56,7 +78,7 @@ class DragonTreasure
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:read'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50, maxMessage: 'Describe your loot in 50 chars or less')]
@@ -72,7 +94,7 @@ class DragonTreasure
      * The estimated value of this treasure, in gold coins.
      */
     #[ORM\Column]
-    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Groups(['treasure:read', 'treasure:write', 'user:read'])]
     #[ApiFilter(RangeFilter::class)]
     #[Assert\GreaterThanOrEqual(0)]
     private ?int $value = null;
@@ -89,6 +111,13 @@ class DragonTreasure
     #[ORM\Column]
     #[ApiFilter(BooleanFilter::class)]
     private ?bool $isPublished = false;
+
+    #[ORM\ManyToOne(inversedBy: 'dragonTreasures')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[Assert\Valid]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
+    private ?User $owner = null;
 
     public function __construct(string $name = null)
     {
@@ -125,7 +154,7 @@ class DragonTreasure
     }
 
     #[SerializedName('description')]
-    #[Groups(['treasure:write'])]
+    #[Groups(['treasure:write', 'user:write'])]
     public function setTextDescription(string $description): static
     {
         $this->description = nl2br($description);
@@ -186,6 +215,18 @@ class DragonTreasure
     public function setIsPublished(bool $isPublished): static
     {
         $this->isPublished = $isPublished;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }

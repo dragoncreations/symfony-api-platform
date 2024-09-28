@@ -40,6 +40,7 @@ final class DragonTreasureFactory extends PersistentProxyObjectFactory
             'name' => self::faker()->randomElement(self::TREASURE_NAMES),
             'plunderedAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-1 year')),
             'value' => self::faker()->numberBetween(1000,1000000),
+            'owner' => UserFactory::new(),
         ];
     }
 
