@@ -17,6 +17,7 @@ use App\Repository\DragonTreasureRepository;
 use Carbon\Carbon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use function Symfony\Component\String\u;
@@ -32,13 +33,19 @@ use function Symfony\Component\String\u;
         new Put(),
         new Patch(),
     ],
+    formats: [
+        'jsonld',
+        'json',
+        'html',
+        'csv' => 'text/csv',
+    ],
     normalizationContext: [
         'groups' => ['treasure:read'],
     ],
     denormalizationContext: [
         'groups' => ['treasure:write'],
     ],
-    paginationItemsPerPage: 10
+    paginationItemsPerPage: 10,
 )]
 #[ApiFilter(PropertyFilter::class)]
 class DragonTreasure
@@ -51,11 +58,14 @@ class DragonTreasure
     #[ORM\Column(length: 255)]
     #[Groups(['treasure:read', 'treasure:write'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 50, maxMessage: 'Describe your loot in 50 chars or less')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['treasure:read'])]
     #[ApiFilter(SearchFilter::class, strategy: 'partial')]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     /**
@@ -64,10 +74,13 @@ class DragonTreasure
     #[ORM\Column]
     #[Groups(['treasure:read', 'treasure:write'])]
     #[ApiFilter(RangeFilter::class)]
+    #[Assert\GreaterThanOrEqual(0)]
     private ?int $value = null;
 
     #[ORM\Column]
     #[Groups(['treasure:read', 'treasure:write'])]
+    #[Assert\GreaterThanOrEqual(0)]
+    #[Assert\LessThanOrEqual(10)]
     private ?int $coolFactor = null;
 
     #[ORM\Column]
