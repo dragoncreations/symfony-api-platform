@@ -24,4 +24,10 @@ class SecurityController extends AbstractController
             'Location' => $iriConverter->getIriFromResource($user),
         ]);
     }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        throw new \Exception('This should never be reached!');
+    }
 }
