@@ -30,8 +30,8 @@ import LoginForm from '../LoginForm';
 import coinLogoPath from '../../images/coinLogo.png';
 import goldPilePath from '../../images/GoldPile.png';
 
-defineProps(['entrypoint']);
-const user = ref(window.user);
+const props = defineProps(['entrypoint', 'user']);
+const user = ref(props.user);
 
 const onUserAuthenticated = async (userUri) => {
     const response = await fetch(userUri);
