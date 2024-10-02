@@ -57,6 +57,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    /* Scopes given during API authentication */
+    private ?array $accessTokenScopes = null;
+
     /**
      * @var string The hashed password
      */
@@ -113,17 +116,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
      * @see UserInterface
-     *
-     * @return list<string>
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
+        if (null === $this->accessTokenScopes) {
+            // logged in via the full user mechanism
+            $roles = $this->roles;
+            $roles[] = 'ROLE_FULL_USER';
+        } else {
+            $roles = $this->accessTokenScopes;
+        }
+
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
@@ -242,9 +250,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getValidTokenStrings(): array
     {
         return $this->getApiTokens()
-            ->filter(fn (ApiToken $token) => $token->isValid())
-            ->map(fn (ApiToken $token) => $token->getToken())
-            ->toArray()
-            ;
+            ->filter(fn(ApiToken $token) => $token->isValid())
+            ->map(fn(ApiToken $token) => $token->getToken())
+            ->toArray();
+    }
+
+    public function markAsTokenAuthenticated(array $scopes)
+    {
+        $this->accessTokenScopes = $scopes;
     }
 }
