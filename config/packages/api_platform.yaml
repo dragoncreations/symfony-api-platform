@@ -11,6 +11,7 @@ api_platform:
         html: [ 'text/html' ]
     swagger:
         api_keys:
+            # overridden in OpenApiFactoryDecorator
             access_token:
                 name: Authorization
                 type: header
