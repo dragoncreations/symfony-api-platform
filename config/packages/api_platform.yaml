@@ -9,6 +9,12 @@ api_platform:
         jsonld: [ 'application/ld+json' ]
         json: [ 'application/json' ]
         html: [ 'text/html' ]
+    swagger:
+        api_keys:
+            access_token:
+                name: Authorization
+                type: header
+
 #    enable_docs: false
 #    enable_entrypoint: false
 #    enable_swagger: false
