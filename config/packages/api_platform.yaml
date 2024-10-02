@@ -9,3 +9,7 @@ api_platform:
         jsonld: [ 'application/ld+json' ]
         json: [ 'application/json' ]
         html: [ 'text/html' ]
+#    enable_docs: false
+#    enable_entrypoint: false
+#    enable_swagger: false
+#    enable_swagger_ui: false
