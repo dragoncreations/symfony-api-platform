@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -124,6 +125,8 @@ class DragonTreasure
 
     #[ORM\Column]
     #[ApiFilter(BooleanFilter::class)]
+    #[Groups(['treasure:read', 'treasure:write'])]
+    #[ApiProperty(security: 'is_granted("EDIT", object)')]
     private ?bool $isPublished = false;
 
     #[ORM\ManyToOne(inversedBy: 'dragonTreasures')]
@@ -221,7 +224,8 @@ class DragonTreasure
         return Carbon::instance($this->plunderedAt)->diffForHumans();
     }
 
-    public function isPublished(): ?bool
+    #[Groups(['treasure:read'])]
+    public function getIsPublished(): ?bool
     {
         return $this->isPublished;
     }
