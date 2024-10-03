@@ -20,6 +20,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -77,22 +78,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
+    
     #[ORM\Column]
     private array $roles = [];
 
     /* Scopes given during API authentication */
     private ?array $accessTokenScopes = null;
 
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
     #[Groups(['user:write'])]
-    private ?string $password = null;
+    #[SerializedName('password')]
+    private ?string $plainPassword = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['user:read', 'user:write', 'treasure:item:get', 'treasure:write'])]
@@ -285,5 +280,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function markAsTokenAuthenticated(array $scopes)
     {
         $this->accessTokenScopes = $scopes;
+    }
+
+    public function setPlainPassword(string $plainPassword): User
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
     }
 }
