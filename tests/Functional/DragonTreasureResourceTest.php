@@ -2,14 +2,17 @@
 
 namespace App\Tests\Functional;
 
+use App\Entity\ApiToken;
+use App\Factory\ApiTokenFactory;
 use App\Factory\DragonTreasureFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Browser\HttpOptions;
+use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class DragonTreasureResourceTest extends ApiTestCase
 {
-    use ResetDatabase;
+    use ResetDatabase, Factories;
 
     public function testGetCollectionOfTreasures(): void
     {
@@ -61,6 +64,40 @@ class DragonTreasureResourceTest extends ApiTestCase
             ]))
             ->assertStatus(201)
             ->assertJsonMatches('name', 'A shiny thing')
+        ;
+    }
+
+    public function testPostToCreateTreasureWithApiKey(): void
+    {
+        $token = ApiTokenFactory::createOne([
+            'scopes' => [ApiToken::SCOPE_TREASURE_CREATE]
+        ]);
+
+        $this->browser()
+            ->post('/api/treasures', [
+                'json' => [],
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token->getToken()
+                ]
+            ])
+            ->assertStatus(422)
+        ;
+    }
+
+    public function testPostToCreateTreasureDeniedWithoutScope(): void
+    {
+        $token = ApiTokenFactory::createOne([
+            'scopes' => [ApiToken::SCOPE_TREASURE_EDIT]
+        ]);
+
+        $this->browser()
+            ->post('/api/treasures', [
+                'json' => [],
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token->getToken()
+                ]
+            ])
+            ->assertStatus(403)
         ;
     }
 }
