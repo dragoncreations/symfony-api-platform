@@ -223,8 +223,7 @@ class DragonTreasure
     {
         return Carbon::instance($this->plunderedAt)->diffForHumans();
     }
-
-    #[Groups(['treasure:read'])]
+    
     public function getIsPublished(): ?bool
     {
         return $this->isPublished;
