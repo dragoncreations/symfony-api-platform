@@ -44,6 +44,17 @@ class DragonTreasureResourceTest extends ApiTestCase
         ]);
     }
 
+    public function testGetOneUnpublishedTreasure404s(): void
+    {
+        $dragonTreasure = DragonTreasureFactory::createOne([
+            'isPublished' => false,
+        ]);
+
+        $this->browser()
+            ->get('/api/treasures/'.$dragonTreasure->getId())
+            ->assertStatus(404);
+    }
+
     public function testPostToCreateTreasure(): void
     {
         $user = UserFactory::createOne(['password' => 'pass']);
@@ -161,11 +172,36 @@ class DragonTreasureResourceTest extends ApiTestCase
         ;
     }
 
+    public function testPatchUnpublishedWorks()
+    {
+        $user = UserFactory::createOne(['password' => 'pass']);
+        $treasure = DragonTreasureFactory::createOne([
+            'owner' => $user,
+            'isPublished' => false,
+        ]);
+
+        $this->browser()
+            ->post('/login', [
+                'json' => [
+                    'email' => $user->getEmail(),
+                    'password' => 'pass',
+                ],
+            ])
+            ->patch('/api/treasures/'.$treasure->getId(), [
+                'json' => [
+                    'value' => 12345,
+                ],
+            ])
+            ->assertStatus(200)
+            ->assertJsonMatches('value', 12345)
+        ;
+    }
+
     public function testAdminCanPatchToEditTreasure(): void
     {
         $admin = UserFactory::new()->asAdmin()->create(['password' => 'pass']);
         $treasure = DragonTreasureFactory::createOne([
-            'isPublished' => false,
+            'isPublished' => true,
         ]);
 
         $this->browser()
@@ -182,7 +218,7 @@ class DragonTreasureResourceTest extends ApiTestCase
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
-            ->assertJsonMatches('isPublished', false)
+            ->assertJsonMatches('isPublished', true)
         ;
     }
 
@@ -190,7 +226,7 @@ class DragonTreasureResourceTest extends ApiTestCase
     {
         $user = UserFactory::new()->create(['password' => 'pass']);
         $treasure = DragonTreasureFactory::createOne([
-            'isPublished' => false,
+            'isPublished' => true,
             'owner' => $user,
         ]);
         $this->browser()
@@ -207,7 +243,7 @@ class DragonTreasureResourceTest extends ApiTestCase
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
-            ->assertJsonMatches('isPublished', false)
+            ->assertJsonMatches('isPublished', true)
         ;
     }
 
