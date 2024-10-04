@@ -41,6 +41,7 @@ class DragonTreasureResourceTest extends ApiTestCase
             'owner',
             'shortDescription',
             'plunderedAtAgo',
+            'isMine',
         ]);
     }
 
