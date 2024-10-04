@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use App\Factory\DragonTreasureFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -48,5 +49,30 @@ class UserResourceTest extends ApiTestCase
                 'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200);
+    }
+
+    public function testTreasuresCannotBeStolen(): void
+    {
+        $user = UserFactory::createOne(['password' => 'pass']);
+        $otherUser = UserFactory::createOne();
+        $dragonTreasure = DragonTreasureFactory::createOne(['owner' => $otherUser]);
+
+        $this->browser()
+            ->post('/login', [
+                'json' => [
+                    'email' => $user->getEmail(),
+                    'password' => 'pass',
+                ],
+            ])
+            ->patch('/api/users/' . $user->getId(), [
+                'json' => [
+                    'username' => 'changed',
+                    'dragonTreasures' => [
+                        '/api/treasures/' . $dragonTreasure->getId(),
+                    ],
+                ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
+            ])
+            ->assertStatus(422);
     }
 }
