@@ -2,6 +2,7 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\ApiResource\DailyQuest;
@@ -11,7 +12,13 @@ class DailyQuestStateProvider implements ProviderInterface
 {
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return $this->createQuests();
+        if ($operation instanceof CollectionOperationInterface) {
+            return $this->createQuests();
+        }
+
+        $quests = $this->createQuests();
+
+        return $quests[$uriVariables['dayString']] ?? null;
     }
 
     private function createQuests(): array
@@ -23,7 +30,7 @@ class DailyQuestStateProvider implements ProviderInterface
             $quest->description = sprintf('Description %d', $i);
             $quest->difficultyLevel = $i % 10;
             $quest->status = $i % 2 === 0 ? DailyQuestStatusEnum::ACTIVE : DailyQuestStatusEnum::COMPLETED;
-            
+
             $quests[$quest->getDayString()] = $quest;
         }
 
