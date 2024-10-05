@@ -2,8 +2,11 @@
 
 namespace App\ApiResource;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use App\Enum\DailyQuestStatusEnum;
 use App\State\DailyQuestStateProvider;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ApiResource(
     shortName: 'Quest',
@@ -11,10 +14,21 @@ use App\State\DailyQuestStateProvider;
 )]
 class DailyQuest
 {
-    public int $id;
+    #[Ignore]
+    public \DateTimeInterface $day;
+    public string $questName;
+    public string $description;
+    public int $difficultyLevel;
+    public DailyQuestStatusEnum $status;
 
-    public function __construct(int $id)
+    public function __construct(\DateTimeInterface $day)
     {
-        $this->id = $id;
+        $this->day = $day;
+    }
+
+    #[ApiProperty(readable: false, identifier: true)]
+    public function getDayString(): string
+    {
+        return $this->day->format('Y-m-d');
     }
 }
