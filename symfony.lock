@@ -309,6 +309,9 @@
             "webpack.config.js"
         ]
     },
+    "symfonycasts/micro-mapper": {
+        "version": "v0.2.0"
+    },
     "zenstruck/foundry": {
         "version": "2.0",
         "recipe": {
