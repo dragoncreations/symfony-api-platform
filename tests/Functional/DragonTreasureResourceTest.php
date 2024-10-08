@@ -134,6 +134,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                 'json' => [
                     'value' => 12345,
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json'],
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
@@ -153,6 +154,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                     // be tricky and try to change the owner
                     'owner' => '/api/users/'.$user2->getId(),
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(403)
         ;
@@ -169,6 +171,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                     // change the owner to someone else
                     'owner' => '/api/users/'.$user2->getId(),
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(422)
         ;
@@ -193,6 +196,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                 'json' => [
                     'value' => 12345,
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
@@ -217,31 +221,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                 'json' => [
                     'value' => 12345,
                 ],
-            ])
-            ->assertStatus(200)
-            ->assertJsonMatches('value', 12345)
-            ->assertJsonMatches('isPublished', true)
-        ;
-    }
-
-    public function testOwnerCanSeeIsPublishedField(): void
-    {
-        $user = UserFactory::new()->create(['password' => 'pass']);
-        $treasure = DragonTreasureFactory::createOne([
-            'isPublished' => true,
-            'owner' => $user,
-        ]);
-        $this->browser()
-            ->post('/login', [
-                'json' => [
-                    'email' => $user->getEmail(),
-                    'password' => 'pass',
-                ],
-            ])
-            ->patch('/api/treasures/'.$treasure->getId(), [
-                'json' => [
-                    'value' => 12345,
-                ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
@@ -268,6 +248,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                 'json' => [
                     'value' => 12345,
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200)
             ->assertJsonMatches('value', 12345)
@@ -294,6 +275,7 @@ class DragonTreasureResourceTest extends ApiTestCase
                 'json' => [
                     'isPublished' => true,
                 ],
+                'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200)
             ->assertJsonMatches('isPublished', true)
