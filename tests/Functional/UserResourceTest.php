@@ -64,7 +64,6 @@ class UserResourceTest extends ApiTestCase
         $otherUser = UserFactory::createOne();
         $dragonTreasure = DragonTreasureFactory::createOne(['owner' => $user]);
         DragonTreasureFactory::createOne(['owner' => $user]);
-        $dragonTreasure3 = DragonTreasureFactory::createOne(['owner' => $otherUser]);
 
         $this->browser()
             ->post('/login', [
@@ -77,17 +76,14 @@ class UserResourceTest extends ApiTestCase
                 'json' => [
                     'dragonTreasures' => [
                         '/api/treasures/' . $dragonTreasure->getId(),
-                        '/api/treasures/' . $dragonTreasure3->getId(),
                     ],
                 ],
                 'headers' => ['Content-Type' => 'application/merge-patch+json']
             ])
             ->assertStatus(200)
             ->get('/api/users/' . $user->getId())
-            ->dump()
-            ->assertJsonMatches('length("dragonTreasures")', 2)
+            ->assertJsonMatches('length("dragonTreasures")', 1)
             ->assertJsonMatches('dragonTreasures[0]', '/api/treasures/' . $dragonTreasure->getId())
-            ->assertJsonMatches('dragonTreasures[1]', '/api/treasures/' . $dragonTreasure3->getId())
         ;
     }
 

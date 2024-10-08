@@ -164,12 +164,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         });
     }
 
-    public function removeDragonTreasure(DragonTreasure $dragonTreasure): static
+    public function removeDragonTreasure(DragonTreasure $treasure): static
     {
-        if ($this->dragonTreasures->removeElement($dragonTreasure)) {
+        if ($this->dragonTreasures->removeElement($treasure)) {
             // set the owning side to null (unless already changed)
-            if ($dragonTreasure->getOwner() === $this) {
-                $dragonTreasure->setOwner(null);
+            if ($treasure->getOwner() === $this) {
+                $treasure->setOwner(null);
             }
         }
 
