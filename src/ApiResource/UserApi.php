@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use App\Entity\User;
 use App\State\EntityClassDtoStateProcessor;
 use App\State\EntityToDtoStateProvider;
+use App\Validator\TreasuresAllowedOwnerChange;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -40,6 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(SearchFilter::class, properties: [
     'username' => 'partial',
 ])]
+#[TreasuresAllowedOwnerChange]
 class UserApi
 {
     #[ApiProperty(readable: false, writable: false, identifier: true)]
